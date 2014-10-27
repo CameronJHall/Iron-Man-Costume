@@ -9,24 +9,29 @@
 
 Adafruit_NeoPixel ironman = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
+int t;
+bool buttonState;
 
 void setup() {
   pinMode(BUTTON_PIN, INPUT);
   ironman.begin();
   ironman.show(); // Initialize all pixels to 'off'
+  int t = 0;
 }
 
 void loop() {
   // Get current button state.
-//  bool newState = digitalRead(BUTTON_PIN);
-//  if (newState == HIGH) {
-//    isBlastinBaddies(0);
-//  } 
-//  else {
-//    isBlastinBaddies(1);
-//  }
-isBlastinBaddies(0);
-delay (2000);
+  buttonState = digitalRead(BUTTON_PIN);
+  if (buttonState == HIGH) {
+    isBlastinBaddies(0);
+    t = 0;
+  } else if (t<300){
+    isBlastinBaddies(1);
+    delay(1000);
+    t++;
+  } else {
+    isBlastinBaddies(2);
+  }
 
 }
 
@@ -36,7 +41,11 @@ void isBlastinBaddies(int i) {
     fireHandCannon(ironman.Color(120, 120, 120), 180);    // Black/off
     break;
   case 1: 
-    //    colorWipe(ironman.Color(255, 0, 0), 50);  // Red
+    standby(ironman.Color(120,120,120));
+    break;
+  case 2: 
+    buttonState = digitalRead(BUTTON_PIN);
+    rave(buttonState);
     break;
 
   }
@@ -105,21 +114,34 @@ void fireHandCannon(uint32_t c, uint8_t wait) {
     ironman.show();
     delay (80);
   }
- 
-//  uint16_t i, j;
-//
-//  for(j=0; j<256*20; j++) { // 5 cycles of all colors on wheel
-//    for(i=0; i< 24; i++) {
-//      ironman.setPixelColor(i, Wheel(((i * 256 / 24) + j) & 255));
-//    }
-//    for(i=24; i< 40; i++) {
-//      ironman.setPixelColor(i, Wheel(((i * 256 / 16) + j) & 255));
-//    }
-//    ironman.show();
-//    delay(20);
-//  }
+}
+
+void standby(uint32_t c) {
+  for(uint16_t i=0; i<ironman.numPixels(); i++) {
+    ironman.setPixelColor(i, c);
+  }
+  ironman.show();
+} 
+
+void rave(bool buttonState) {
+  uint16_t i, j;
+
+  for(j=0; j<256; j++) { // Cycles all colors on wheel
+    for(i=0; i< 24; i++) {
+      ironman.setPixelColor(i, Wheel(((i * 256 / 24) + j) & 255));
+    }
+    for(i=24; i< 40; i++) {
+      ironman.setPixelColor(i, Wheel(((i * 256 / 16) + j) & 255));
+    }
+    ironman.show();
+    if (buttonState == HIGH) {
+      break; 
+    }  
+    delay(20);
+  }
 
 }
+
 
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
@@ -137,6 +159,8 @@ uint32_t Wheel(byte WheelPos) {
     return ironman.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
 }
+
+
 
 
 
