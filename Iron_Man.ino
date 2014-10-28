@@ -44,8 +44,7 @@ void isBlastinBaddies(int i) {
     standby(ironman.Color(120,120,120));
     break;
   case 2: 
-    buttonState = digitalRead(BUTTON_PIN);
-    rave(buttonState);
+    rave();
     break;
 
   }
@@ -123,7 +122,7 @@ void standby(uint32_t c) {
   ironman.show();
 } 
 
-void rave(bool buttonState) {
+void rave() {
   uint16_t i, j;
 
   for(j=0; j<256; j++) { // Cycles all colors on wheel
@@ -134,7 +133,7 @@ void rave(bool buttonState) {
       ironman.setPixelColor(i, Wheel(((i * 256 / 16) + j) & 255));
     }
     ironman.show();
-    if (buttonState == HIGH) {
+    if (digitalRead(BUTTON_PIN) == HIGH) {
       break; 
     }  
     delay(20);
